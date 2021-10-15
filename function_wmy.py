@@ -9,6 +9,7 @@ import numpy as np
 
 l = 45.641#20cm = 45.641 像素
 
+#-----------------------------------------------------------------
 #用纯追踪算法控制小车的舵机转角实现巡线
 #输入量：摄像头坐标系下小车位置坐标（单位：像素）、预瞄点坐标（单位：像素）、小车朝向角（单位：弧度）
 #输出量：小车舵机转角（单位：弧度）
@@ -40,3 +41,28 @@ def line_follower(msr, setpoint, theta_msr):
     return u
 
 print(line_follower([1,2],[3,4], 1))
+
+#----------------------------------------------
+#编码底层控制程序，设置电机转速和舵机转角 gear:静止--0 前进--1 后退--2 direction:舵机转角
+inf_direction = -45#单位：角度，待测量
+sup_direction = 45
+middle_direction = (inf_direction + sup_direction)/2
+def send_data(gear, direction):
+    #将direction转换为低8位
+    direction_5_bit = int(15 + (direction - middle_direction) * 32 / (sup_direction - inf_direction))
+    #给direction_5_bit限幅
+    if direction_5_bit > 31:
+        direction_5_bit = 31
+    elif direction_5_bit < 0:
+        direction_5_bit = 0
+
+    #将电机舵机信息整合成一字节    
+    comdata = gear*32 + dirction_5_bit
+
+    #编码
+    send_data = chr(int(comdata))
+    return send_data
+
+
+    
+
